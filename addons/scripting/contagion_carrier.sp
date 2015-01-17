@@ -58,7 +58,9 @@ public OnPluginStart()
 
 public OnClientPostAdminCheck(client)
 {
+	if (!IsValidClient(client)) return;
 	g_nCarriers[client][g_nIfCarrier] = STATE_NOT_CARRIER;
+	CheckTeams();
 }
 
 public OnMapStart()
@@ -84,24 +86,14 @@ public OnMapStart()
 	
 	// Precache everything
 	PrecacheModel("models/zombies/whitey/whitey.mdl");
-	
-	// Check teams when map has actually started
-	CheckTeams();
 }
 
-CheckTeams()
-{
-	CreateTimer(0.5, Timer_TeamCheck, _, TIMER_REPEAT);
-}
-
-public Action:Timer_TeamCheck(Handle:timer)
+public CheckTeams()
 {
 	if (GetCarrierCount() <= GetConVarInt(g_hCvarMode))
 		CanBeCarrier = true;
 	else
 		CanBeCarrier = false;
-	
-	return Plugin_Continue;
 }
 
 public Action:EVENT_PlayerSpawned(Handle:hEvent,const String:name[],bool:dontBroadcast)
@@ -109,19 +101,33 @@ public Action:EVENT_PlayerSpawned(Handle:hEvent,const String:name[],bool:dontBro
 	new client = GetClientOfUserId(GetEventInt(hEvent, "userid"));
 	if (!IsValidClient(client)) return;
 	
+	CheckTeams();
+	
+	new String:teamname[32];
+	
+	if (GetClientTeam(client) == _:CTEAM_Zombie)
+		teamname = "Zombie";
+	else
+		teamname = "Survivor";
+	
 	// if the player is already a carrier, don't call this
 	if (g_nCarriers[client][g_nIfCarrier] == STATE_NOT_CARRIER)
 	{
-		if (CanBeCarrier)
+		if (CanBeCarrier && GetClientTeam(client) == _:CTEAM_Zombie)
 			g_nCarriers[client][g_nIfCarrier] = STATE_CARRIER;
 	}
 	
 	if (GetConVarInt(g_hDebugMode) >= 1)
 	{
 		if (g_nCarriers[client][g_nIfCarrier] == STATE_CARRIER)
-			PrintToServer("%N is a carrier", client);
+			PrintToServer("(%s) %N is a carrier", teamname, client);
 		else
-			PrintToServer("%N is not a carrier", client);
+			PrintToServer("(%s) %N is not a carrier", teamname, client);
+		
+		// Lets get the information of how many zombies there is, and what the amount is
+		PrintToServer("[[ There is %d amount of zombies (players) ]]", GetZombieCount());
+		PrintToServer("[[ There is %d amount of carriers ]]", GetCarrierCount());
+		PrintToServer("[[ %d is the max carrier count ]]", GetConVarInt(g_hCvarMode));
 	}
 	
 	new iTeam = GetClientTeam(client);
@@ -143,10 +149,8 @@ public Action:SetModel(Handle:timer, any:client)
 
 public OnClientDisconnect(client)
 {
-	if(g_nCarriers[client][g_nIfCarrier] == STATE_CARRIER)
-	{
-		// Carrier has left the game!
-	}
+	if (!IsValidClient(client)) return;
+	CheckTeams();
 }
 
 stock bool:IsValidClient(client, bool:bCheckAlive=true)
@@ -165,6 +169,17 @@ GetCarrierCount()
 	
 	for( i = 1; i <= MaxClients; i++ )
 		if( IsClientInGame(i) && IsPlayerAlive(i) && GetClientTeam(i) == _:CTEAM_Zombie && g_nCarriers[i][g_nIfCarrier] == STATE_CARRIER )
+			iCount++;
+	
+	return iCount;
+}
+
+GetZombieCount()
+{
+	decl iCount, i; iCount = 0;
+	
+	for( i = 1; i <= MaxClients; i++ )
+		if( IsClientInGame(i) && IsPlayerAlive(i) && GetClientTeam(i) == _:CTEAM_Zombie )
 			iCount++;
 	
 	return iCount;
