@@ -5,8 +5,9 @@
 #include <sdktools>
 #include <contagion>
 
-#define PLUGIN_VERSION "1.0"
+#define PLUGIN_VERSION "1.1"
 
+// TODO: Add lives override
 enum g_eModes
 {
 	MODE_LIVES=0,	// Default 4 lives on CE and other modes.
@@ -26,6 +27,7 @@ enum g_edata
 };
 
 new CanBeCarrier;
+new Handle:g_hDebugMode;
 new Handle:g_hCvarMode;
 new Handle:g_SetWhiteyHealth;
 new g_nCarriers[MAXPLAYERS+1][g_edata];
@@ -46,6 +48,7 @@ public OnPluginStart()
 	
 	// Commands
 	CreateConVar("sm_carrier_version", PLUGIN_VERSION, "Current \"Be The Carrier\" Version", FCVAR_NOTIFY | FCVAR_DONTRECORD | FCVAR_SPONLY);
+	g_hDebugMode		= CreateConVar("sm_carrier_debug", "0", "0 - Disable debugging | 1 - Enable Debugging");
 	g_hCvarMode			= CreateConVar("sm_carrier_max", "1", "How many carriers should can we have alive at once?");
 	g_SetWhiteyHealth	= CreateConVar("sm_carrier_health", "250.0", "Value to change the carrier health to. Minimum 250.", 
 		FCVAR_PLUGIN|FCVAR_NOTIFY, true, 250.0);
@@ -113,10 +116,13 @@ public Action:EVENT_PlayerSpawned(Handle:hEvent,const String:name[],bool:dontBro
 			g_nCarriers[client][g_nIfCarrier] = STATE_CARRIER;
 	}
 	
-	if (g_nCarriers[client][g_nIfCarrier] == STATE_CARRIER)
-		PrintToServer("%N is a carrier", client);
-	else
-		PrintToServer("%N is not a carrier", client);
+	if (GetConVarInt(g_hDebugMode) >= 1)
+	{
+		if (g_nCarriers[client][g_nIfCarrier] == STATE_CARRIER)
+			PrintToServer("%N is a carrier", client);
+		else
+			PrintToServer("%N is not a carrier", client);
+	}
 	
 	new iTeam = GetClientTeam(client);
 	if (iTeam == _:CTEAM_Zombie)
