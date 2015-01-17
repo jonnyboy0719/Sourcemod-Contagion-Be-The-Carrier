@@ -5,7 +5,7 @@
 #include <sdktools>
 #include <contagion>
 
-#define PLUGIN_VERSION "1.1"
+#define PLUGIN_VERSION "1.2"
 
 // TODO: Add lives override
 enum g_eModes
