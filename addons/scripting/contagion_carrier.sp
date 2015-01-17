@@ -45,6 +45,7 @@ public OnPluginStart()
 	HookEvent("player_spawn",EVENT_PlayerSpawned);
 	
 	// Commands
+	CreateConVar("sm_carrier_version", PLUGIN_VERSION, "Current \"Be The Carrier\" Version", FCVAR_NOTIFY | FCVAR_DONTRECORD | FCVAR_SPONLY);
 	g_hCvarMode			= CreateConVar("sm_carrier_max", "1", "How many carriers should can we have alive at once?");
 	g_SetWhiteyHealth	= CreateConVar("sm_carrier_health", "250.0", "Value to change the carrier health to. Minimum 250.", 
 		FCVAR_PLUGIN|FCVAR_NOTIFY, true, 250.0);
