@@ -1,12 +1,6 @@
-Sourcemod -- Contagion Be The Carrier
+MOVED
 =====================
 
-Be the carrier from Zombie Panic! Source and turn the place up sidedown!
+"Be The Carrier" has changed its name to "Be the Mod (Special Survivor/Zombie)", more details can be found here:
 
-The Include File
-=================
-https://github.com/jonnyboy0719/Sourcemod-Contagion-Include-file
-
-Allied Modders
-==============
-https://forums.alliedmods.net/showthread.php?t=255586
+https://github.com/jonnyboy0719/Sourcemod-Contagion-Be-The-Mod
